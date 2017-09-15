@@ -30,6 +30,10 @@ namespace MigracionCarteraJM.Models
 
             modelBuilder.Entity<Cliente>().ToTable("Clientes")
                 .HasKey(d => d.ClienteId);
+
+            modelBuilder.Entity<Maestro>().ToTable("Maestros")
+                .HasKey(d => d.MaestroId);
+
         }
     }
 }

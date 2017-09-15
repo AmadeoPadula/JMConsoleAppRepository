@@ -69,6 +69,10 @@
     <Compile Include="Migrations\201709141746200_InitClientes.Designer.cs">
       <DependentUpon>201709141746200_InitClientes.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709150308012_AddMaestroEntity.cs" />
+    <Compile Include="Migrations\201709150308012_AddMaestroEntity.Designer.cs">
+      <DependentUpon>201709150308012_AddMaestroEntity.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CarteraContext.cs" />
     <Compile Include="Models\Cliente.cs" />
@@ -83,6 +87,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201709141746200_InitClientes.resx">
       <DependentUpon>201709141746200_InitClientes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709150308012_AddMaestroEntity.resx">
+      <DependentUpon>201709150308012_AddMaestroEntity.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
