@@ -18,6 +18,8 @@ namespace MigracionCarteraJM.Models
         }
 
         public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<Maestro> Maestros { get; set; }
+
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
