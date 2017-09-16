@@ -17,7 +17,7 @@ namespace MigracionCarteraJM.Models
         public decimal CapitalVigente { get; set; }
         public decimal InteresesVigentes { get; set; }
         public decimal IvaVigentes { get; set; }
-        public decimal SalgoVigente { get; set; }
+        public decimal SaldoVigente { get; set; }
         public decimal CapitalVencido { get; set; }
         public decimal InteresesVencidos { get; set; }
         public decimal IvaVencido { get; set; }
