@@ -19,6 +19,7 @@ namespace MigracionCarteraJM.Models
 
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Maestro> Maestros { get; set; }
+        public DbSet<BaseCredito> BaseCreditos { get; set; }
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -34,6 +35,9 @@ namespace MigracionCarteraJM.Models
             modelBuilder.Entity<Maestro>().ToTable("Maestros")
                 .HasKey(d => d.MaestroId);
 
-        }
-    }
-}
+            modelBuilder.Entity<BaseCredito>().ToTable("BaseCreditos")
+                .HasKey(d => d.BaseCreditoId);
+        } // protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    } // public class CarteraContext:DbContext
+
+} // namespace MigracionCarteraJM.Models

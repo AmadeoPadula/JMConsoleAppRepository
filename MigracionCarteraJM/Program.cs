@@ -17,17 +17,404 @@ namespace MigracionCarteraJM
 
         private const string ReporteMaestro = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Reportes\Reporte Maestro.xls";
 
+        private const string BaseCreditos = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Reportes\Base de Creditos.xls";
+
+
         static void Main(string[] args)
         {
             //ImportarListadoClientes();
             //ImportarReporteMaestro();
+            ImportarBaseCreditos();
 
         }
 
+        private static void ImportarBaseCreditos()
+        {
+            var archivoTrabajo = BaseCreditos;
+
+            //Abrir documento excel
+            //Workbook workbook = new Workbook();
+
+            //workbook.LoadFromFile(archivoTrabajo);
+
+            //Worksheet sheet = workbook.Worksheets[0];
+
+            ////Eliminar filas Encabezado
+            //DeleteRows(sheet, 1);
+
+            //workbook.SaveToFile(archivoTrabajo);
+
+            var stringConexionExcel = string.Format(CadenaDeConexionExcel, BaseCreditos);//Valor Yes or No depende de si archivo Excel tiene header o no
+
+            OleDbConnection connExcel = new OleDbConnection(stringConexionExcel);
+            OleDbCommand cmdExcel = new OleDbCommand();
+            OleDbDataAdapter oda = new OleDbDataAdapter();
+            DataTable dataTable = new DataTable();
+            cmdExcel.Connection = connExcel;
+
+            try
+            {
+                //Obten la primera página del archivo Excel
+                connExcel.Open();
+                DataTable dtExcelSchema;
+
+                dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                //string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+                string SheetName = dtExcelSchema.Rows[1]["TABLE_NAME"].ToString();
+
+                //Leer la información de la primera página
+                cmdExcel.CommandText = "SELECT * From [" + SheetName + "]";
+                oda.SelectCommand = cmdExcel;
+                oda.Fill(dataTable);
+
+                var baseCreditos = new List<BaseCredito>();
+
+                foreach (DataRow renglonDataRow in dataTable.Rows)
+                {
+                    var baseCredito = new BaseCredito();
+
+                    //Sucursal
+                    var sucursal = renglonDataRow["Sucursal: "].ToString();
+                    baseCredito.Sucursal= string.IsNullOrEmpty(sucursal) ? null : sucursal;
+
+                    //RangoDias
+                    var rangoDias = renglonDataRow["Rango de Días"].ToString();
+                    baseCredito.RangoDias = string.IsNullOrEmpty(rangoDias) ? null : rangoDias;
+
+                    //TipoCredito
+                    var tipoCredito = renglonDataRow["Tipo Crédito"].ToString();
+                    baseCredito.TipoCredito = string.IsNullOrEmpty(tipoCredito) ? null : tipoCredito;
+
+                    //NumeroCredito
+                    var numeroCredito = renglonDataRow["No# Crédito"].ToString();
+
+                    if (string.IsNullOrEmpty(numeroCredito))
+                    {
+                        continue;
+
+                    } 
+
+                    baseCredito.NumeroCredito = numeroCredito;
+
+                    //NumeroSocio
+                    if (!int.TryParse(renglonDataRow["No# Socio"].ToString(), out int numeroSocio))
+                    {
+                        continue;
+                    } 
+
+                    baseCredito.NumeroSocio = numeroSocio;
+
+                    //Nombre
+                    var nombre = renglonDataRow["Nombre"].ToString();
+                    baseCredito.Nombre = string.IsNullOrEmpty(nombre) ? null : nombre;
+
+                    //Curp
+                    var curp = renglonDataRow["CURP"].ToString();
+                    baseCredito.Curp = string.IsNullOrEmpty(curp) ? null : curp;
+
+                    //ClaveElector
+                    var claveElector = renglonDataRow["Clave de Elector"].ToString();
+                    baseCredito.ClaveElector = string.IsNullOrEmpty(claveElector) ? null : claveElector;
+
+                    //Capital
+                    if (!decimal.TryParse(renglonDataRow["Capital"].ToString(), out decimal capital))
+                    {
+                        continue;
+                    } 
+
+                    baseCredito.Capital = capital;
+
+                    //MontoAmoritzacionesVencidas
+                    if (!decimal.TryParse(renglonDataRow["Monto de_Amortiz# Vencidas"].ToString(), out decimal montoAmortizacionesVencidas))
+                    {
+                        continue;
+                    } 
+
+                    baseCredito.MontoAmoritzacionesVencidas = montoAmortizacionesVencidas;
+
+                    //NumeroAmortizacionesVencidas
+                    if (!int.TryParse(renglonDataRow["No# de_Amortiz# Vencidas"].ToString(), out int numeroAmortizacionesVencidas))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.NumeroAmortizacionesVencidas = numeroAmortizacionesVencidas;
+
+                    //InteresVigente
+                    if (!decimal.TryParse(renglonDataRow["Interes Vig#"].ToString(), out decimal interesVigente))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.InteresVigente = interesVigente;
+
+                    //InteresVencido
+                    if (!decimal.TryParse(renglonDataRow["Interes Ven#"].ToString(), out decimal interesVencido))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.InteresVencido = interesVencido;
+
+                    //InteresOrdinario
+                    if (!decimal.TryParse(renglonDataRow["Interes Orden"].ToString(), out decimal interesOrdinario))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.InteresOrdinario = interesOrdinario;
+
+                    //SaldoMoratorio
+                    if (!decimal.TryParse(renglonDataRow["Sal# Moratorio"].ToString(), out decimal saldoMoratorio))
+                    {
+                        continue;
+                    } 
+
+                    baseCredito.SaldoMoratorio = saldoMoratorio;
+
+                    //MontoDesembolsado
+                    if (!decimal.TryParse(renglonDataRow["Monto Desembolsado"].ToString(), out decimal montoDesembolsado))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.MontoDesembolsado = montoDesembolsado;
+
+                    //TasaAnual
+                    if (!decimal.TryParse(renglonDataRow["Tasa _Anual"].ToString(), out decimal tasaAnual))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.TasaAnual = tasaAnual;
+
+                    //TasaMensual
+                    if (!decimal.TryParse(renglonDataRow["Tasa _Mensual"].ToString(), out decimal tasaMensual))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.TasaMensual = tasaMensual;
+
+                    //ModalidadPago
+                    var modalidadPago = renglonDataRow["Modalidad Pago"].ToString();
+                    baseCredito.ModalidadPago = string.IsNullOrEmpty(modalidadPago) ? null : modalidadPago;
+
+                    //NumeroCuotas
+                    if (!int.TryParse(renglonDataRow["No# de Cuotas"].ToString(), out int numeroCuotas))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.NumeroCuotas = numeroCuotas;
+
+                    //FechaDesembolso
+                    if (!DateTime.TryParse(renglonDataRow["Fec#  Desemb#"].ToString(), out DateTime fechaDesembolso))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.FechaDesembolso = fechaDesembolso;
+
+                    //FechaVencimento
+                    if (!DateTime.TryParse(renglonDataRow["Fec#  Vencim#"].ToString(), out DateTime fechaVencimiento))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.FechaVencimento = fechaVencimiento;
+
+                    //FechaUltimoPagoCapital
+                    if (renglonDataRow["Fec#  Ult# Pago Cap#"] == DBNull.Value)
+                    {
+                        baseCredito.FechaUltimoPagoCapital = null;
+                    }
+                    else
+                    {
+                        if (!DateTime.TryParse(renglonDataRow["Fec#  Ult# Pago Cap#"].ToString(), out DateTime fechaUltimoPagoCapital))
+                        {
+                            continue;
+                        }
+
+                        baseCredito.FechaUltimoPagoCapital = fechaUltimoPagoCapital;
+                    }
+
+                    //Reciprocidad
+                    if (!decimal.TryParse(renglonDataRow["Reciprocidad"].ToString(), out decimal reciprocidad))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.Reciprocidad = reciprocidad;
+
+                    //SaldoCuentaAhorro
+                    if (!decimal.TryParse(renglonDataRow["Saldo Cta# Ahorro"].ToString(), out decimal saldoCuentaAhorro))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.SaldoCuentaAhorro = saldoCuentaAhorro;
+
+
+                    //SaldoInversiones
+                    if (!decimal.TryParse(renglonDataRow["Saldo_Inversiones"].ToString(), out decimal saldoInversiones))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.SaldoInversiones = saldoInversiones;
+
+                    //VecesRecicle
+                    if (!int.TryParse(renglonDataRow["Veces_Reci#"].ToString(), out int vecesRecicle))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.VecesRecicle = vecesRecicle;
+
+                    //Producto
+                    var producto = renglonDataRow["Producto"].ToString();
+                    baseCredito.Producto = string.IsNullOrEmpty(producto) ? null : producto;
+
+                    //NombreProducto
+                    var nombreProducto = renglonDataRow["Nombre Producto"].ToString();
+                    baseCredito.NombreProducto = string.IsNullOrEmpty(nombreProducto) ? null : nombreProducto;
+
+                    //Grupo
+                    if (!int.TryParse(renglonDataRow["Grupo"].ToString(), out int grupo))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.Grupo = grupo;
+
+                    //NombreGrupo
+                    var nombreGrupo = renglonDataRow["Nombre Grupo"].ToString();
+                    baseCredito.NombreGrupo = string.IsNullOrEmpty(nombreGrupo) ? null : nombreGrupo;
+
+                    //Direccion
+                    var direccion = renglonDataRow["Dirección"].ToString();
+                    baseCredito.Direccion = string.IsNullOrEmpty(direccion) ? null : direccion;
+
+                    //DiasAtraso
+                    if (!int.TryParse(renglonDataRow["Dias Atraso"].ToString(), out int diasAtraso))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.DiasAtraso = diasAtraso;
+
+                    //CapitalExigible
+                    if (!decimal.TryParse(renglonDataRow["Capital _Exigible"].ToString(), out decimal capitalExigible))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.CapitalExigible = capitalExigible;
+
+                    //Saldo
+                    if (!decimal.TryParse(renglonDataRow["Saldo"].ToString(), out decimal saldo))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.Saldo = saldo;
+
+
+                    //FechaPrimerCuotaNoPagado
+                    if (renglonDataRow["Fec# 1er Cuota No Pagada"] == DBNull.Value)
+                    {
+                        baseCredito.FechaPrimerCuotaNoPagada = null;
+                    }
+                    else
+                    {
+                        if (!DateTime.TryParse(renglonDataRow["Fec# 1er Cuota No Pagada"].ToString(), out DateTime fechaPrimerCuotaNoPagada))
+                        {
+                            continue;
+                        }
+
+                        baseCredito.FechaPrimerCuotaNoPagada = fechaPrimerCuotaNoPagada;
+                    }
+
+                    //DestinoCredito
+                    var destinoCredito = renglonDataRow["Destino Credito"].ToString();
+                    baseCredito.DestinoCredito = string.IsNullOrEmpty(destinoCredito) ? null : destinoCredito;
+
+                    //Sexo
+                    var sexo = renglonDataRow["Sexo"].ToString();
+                    baseCredito.Sexo = string.IsNullOrEmpty(sexo) ? null : sexo;
+
+
+                    //-----INICA DESFASE DE COLUMNAS 1
+                    //Ingresos
+
+                    //Egresos
+
+                    //BandaMorosidad
+                    if (!int.TryParse(renglonDataRow["Ingresos"].ToString(), out int bandaMorosidad))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.BandaMorosidad = bandaMorosidad;
+
+                    //Municipio
+                    var municipio = renglonDataRow["Egresos"].ToString();
+                    baseCredito.Municipio = string.IsNullOrEmpty(municipio) ? null : municipio;
+
+                    //NumeroHabitantes
+                    if (!int.TryParse(renglonDataRow["Banda Morosidad"].ToString(), out int numeroHabitantes))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.NumeroHabitantes = numeroHabitantes;
+
+
+                    //ZonaMarginal
+                    var zonaMarginal = renglonDataRow["Municipio"].ToString();
+                    baseCredito.ZonaMarginal = string.IsNullOrEmpty(zonaMarginal) ? null : zonaMarginal;
+
+                    //Estado
+                    var estado = renglonDataRow["# Habitantes"].ToString();
+                    baseCredito.Estado = string.IsNullOrEmpty(estado) ? null : estado;
+
+                    baseCreditos.Add(baseCredito);
+
+                }
+
+                //Insertar en Base de Datos
+                using (var db = new CarteraContext())
+                {
+                    db.BaseCreditos.AddRange(baseCreditos);
+                    db.SaveChanges();
+                } // using (var db = new CarteraContext())
+
+                Console.WriteLine("Fin de Proceso");
+
+            } // try
+
+            catch (Exception eCargar)
+            {
+                throw eCargar;
+
+            } // catch (Exception eCargar)
+
+            finally
+            {
+                // Cierra la conexión
+                connExcel.Close();
+
+            } // finally
+
+        } // private static void ImportarBaseCreditos()
 
         private static void ImportarReporteMaestro()
         {
-            var stringConexionExcel = string.Format(CadenaDeConexionExcel, ReporteMaestro);//Valor Yes or No depende de si archivo Excel tiene header o no
+
+            var archivoTrabajo = ReporteMaestro;
+
+            var stringConexionExcel = string.Format(CadenaDeConexionExcel, archivoTrabajo);//Valor Yes or No depende de si archivo Excel tiene header o no
 
             OleDbConnection connExcel = new OleDbConnection(stringConexionExcel);
             OleDbCommand cmdExcel = new OleDbCommand();
@@ -416,14 +803,16 @@ namespace MigracionCarteraJM
                 connExcel.Close();
 
             } // finally
-        }
+        } // private static void ImportarReporteMaestro()
 
         private static void ImportarListadoClientes()
         {
+            var archivoTrabajo = ListadoGeneralClientes;
+
             //Abrir documento excel
             Workbook workbook = new Workbook();
 
-            workbook.LoadFromFile(ListadoGeneralClientes);
+            workbook.LoadFromFile(archivoTrabajo);
 
             Worksheet sheet = workbook.Worksheets[0];
 
@@ -433,9 +822,9 @@ namespace MigracionCarteraJM
             //Eliminar filas Encabezado
             DeleteRows(sheet, 1, 6);
 
-            workbook.SaveToFile(ListadoGeneralClientes);
+            workbook.SaveToFile(archivoTrabajo);
 
-            var stringConexionExcel = String.Format(CadenaDeConexionExcel, ListadoGeneralClientes);//Valor Yes or No depende de si archivo Excel tiene header o no
+            var stringConexionExcel = String.Format(CadenaDeConexionExcel, archivoTrabajo);//Valor Yes or No depende de si archivo Excel tiene header o no
 
 
             OleDbConnection connExcel = new OleDbConnection(stringConexionExcel);
@@ -513,8 +902,7 @@ namespace MigracionCarteraJM
                 connExcel.Close();
 
             } // finally
-        }
-
+        } // private static void ImportarListadoClientes()
 
         private static void UnMergeWorksheet(Worksheet sheet)
         {
@@ -524,8 +912,7 @@ namespace MigracionCarteraJM
             {
                 cell.UnMerge();
             }
-        }
-
+        } // private static void UnMergeWorksheet(Worksheet sheet)
 
         private static void DeleteRows(Worksheet sheet, int starRow, int endRow = 1)
         {

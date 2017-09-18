@@ -77,9 +77,18 @@
     <Compile Include="Migrations\201709152345047_RenameColumSalgoVigenteToSaldoVigente.Designer.cs">
       <DependentUpon>201709152345047_RenameColumSalgoVigenteToSaldoVigente.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709181738294_AddEntityBaseCreditos.cs" />
+    <Compile Include="Migrations\201709181738294_AddEntityBaseCreditos.Designer.cs">
+      <DependentUpon>201709181738294_AddEntityBaseCreditos.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709181826575_BaseCreditoRenFechaPrimerCuotaNoPagada_NumeroHabitantes_int.cs" />
+    <Compile Include="Migrations\201709181826575_BaseCreditoRenFechaPrimerCuotaNoPagada_NumeroHabitantes_int.Designer.cs">
+      <DependentUpon>201709181826575_BaseCreditoRenFechaPrimerCuotaNoPagada_NumeroHabitantes_int.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CarteraContext.cs" />
     <Compile Include="Models\Cliente.cs" />
+    <Compile Include="Models\BaseCredito.cs" />
     <Compile Include="Models\Maestro.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +106,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709152345047_RenameColumSalgoVigenteToSaldoVigente.resx">
       <DependentUpon>201709152345047_RenameColumSalgoVigenteToSaldoVigente.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709181738294_AddEntityBaseCreditos.resx">
+      <DependentUpon>201709181738294_AddEntityBaseCreditos.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709181826575_BaseCreditoRenFechaPrimerCuotaNoPagada_NumeroHabitantes_int.resx">
+      <DependentUpon>201709181826575_BaseCreditoRenFechaPrimerCuotaNoPagada_NumeroHabitantes_int.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
