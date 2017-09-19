@@ -18,6 +18,7 @@ namespace ValidacionArchivosRecibidos.Models
         public DirectorioCredito DirectorioCredito { get; set; }
         public string Descripcion { get; set; }
         public DateTime Fecha { get; set; } = DateTime.Now;
+        public int? NumeroLinea { get; set; }
 
     } // public class Log
 } // namespace ValidacionArchivosRecibidos.Models

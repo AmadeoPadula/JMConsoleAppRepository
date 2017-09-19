@@ -81,6 +81,14 @@
     <Compile Include="Migrations\201709190040448_addMovientoEntity.Designer.cs">
       <DependentUpon>201709190040448_addMovientoEntity.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709191929423_AddHistorioPagoEntity.cs" />
+    <Compile Include="Migrations\201709191929423_AddHistorioPagoEntity.Designer.cs">
+      <DependentUpon>201709191929423_AddHistorioPagoEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709192339148_AddLogColumnNumeroLinea.cs" />
+    <Compile Include="Migrations\201709192339148_AddLogColumnNumeroLinea.Designer.cs">
+      <DependentUpon>201709192339148_AddLogColumnNumeroLinea.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\DirectorioCredito.cs" />
     <Compile Include="Migrations\201709130148021_Init.cs" />
     <Compile Include="Migrations\201709130148021_Init.Designer.cs">
@@ -95,6 +103,7 @@
       <DependentUpon>201709131453335_AddColumnDirectorioCredito_Ruta.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\HistoricoPago.cs" />
     <Compile Include="Models\Log.cs" />
     <Compile Include="Models\Movimiento.cs" />
     <Compile Include="Models\TablaAmortizacion.cs" />
@@ -127,6 +136,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709190040448_addMovientoEntity.resx">
       <DependentUpon>201709190040448_addMovientoEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709191929423_AddHistorioPagoEntity.resx">
+      <DependentUpon>201709191929423_AddHistorioPagoEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709192339148_AddLogColumnNumeroLinea.resx">
+      <DependentUpon>201709192339148_AddLogColumnNumeroLinea.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

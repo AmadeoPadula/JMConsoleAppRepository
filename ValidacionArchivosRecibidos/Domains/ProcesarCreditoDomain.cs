@@ -31,7 +31,7 @@ namespace ValidacionArchivosRecibidos.Domains
 
             if (tablaPagos != null)
             {
-                ExtraerTablaAmortizacion(tablaPagos, directorioCreditoId, creditoId);
+                //ExtraerTablaAmortizacion(tablaPagos, directorioCreditoId, creditoId);
 
             } // if (tablaPagos != null)
 
@@ -41,7 +41,7 @@ namespace ValidacionArchivosRecibidos.Domains
 
             if (historicoPagos != null && tablaMovimientos != null)
             {
-                ExtraerTablaMovimientos(tablaMovimientos, directorioCreditoId, creditoId);
+                //ExtraerTablaMovimientos(tablaMovimientos, directorioCreditoId, creditoId);
                 ExtraerHistoricoPagos(historicoPagos, directorioCreditoId, creditoId);
             } // if (historicoPagos != null && tablaMovimientos != null)
 
@@ -49,8 +49,264 @@ namespace ValidacionArchivosRecibidos.Domains
 
         private void ExtraerHistoricoPagos(DirectorioCredito tablaHistoricoPagos, int directorioCreditoId, int creditoId)
         {
+            var pathHistoricoPagos = tablaHistoricoPagos.Ruta;
+
+            //Determinar el tipo de formato del archivo:
+            //var workbook = new Workbook();
+            //workbook.LoadFromFile(pathHistoricoPagos);
+            //var sheet = workbook.Worksheets[0];
 
 
+            ////Eliminar filas Encabezado
+            //UtileriasClass.DeleteRows(sheet, 1);
+
+
+            //workbook.SaveToFile(pathHistoricoPagos);
+
+            var stringConexionExcel = string.Format(CadenaDeConexionExcel, pathHistoricoPagos); //Valor Yes or No depende de si archivo Excel tiene header o no
+
+            OleDbConnection connExcel = new OleDbConnection(stringConexionExcel);
+            OleDbCommand cmdExcel = new OleDbCommand();
+            OleDbDataAdapter oda = new OleDbDataAdapter();
+            DataTable dataTable = new DataTable();
+            cmdExcel.Connection = connExcel;
+
+            try
+            {
+                //Obten la primera página del archivo Excel
+                connExcel.Open();
+                DataTable dtExcelSchema;
+
+                dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                //string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+                string SheetName = dtExcelSchema.Rows[1]["TABLE_NAME"].ToString();
+
+                //Leer la información de la primera página
+                cmdExcel.CommandText = "SELECT * From [" + SheetName + "]";
+                oda.SelectCommand = cmdExcel;
+                oda.Fill(dataTable);
+
+
+                //Validar que existan las columnas en el archivo origen
+                var columnas = dataTable.Columns;
+                var logFaltaColumna = new Log
+                {
+                    DirectorioCreditoId = directorioCreditoId
+                };
+
+                var columnasBuscadas = new[]
+                {
+                    "Cuota",
+                    "Fecha",
+                    "Total",
+                    "Cargos",
+                    "Principal",
+                    "Int# Vigente",
+                    "Int# Vencido",
+                    "Int# Orden",
+                    "CPA",
+                    "Moratorios",
+                    "IVA"
+                };
+
+
+                foreach (var columnaActual in columnasBuscadas)
+                {
+                    if (columnas.Contains(columnaActual)) continue;
+
+                    logFaltaColumna.Descripcion = columnaActual;
+                    InsertarRegistroBitacora(logFaltaColumna);
+                    return;
+                } // foreach (var columnaActual in columnasBuscadas)
+
+                var historicoPagos = new List<HistoricoPago>();
+
+                var numeroLinea = 1;
+
+                foreach (DataRow renglonDataRow in dataTable.Rows)
+                {
+                    //Si aparece la palabra "Cuota" se brinca la fila
+                    var cuota = renglonDataRow[columnasBuscadas[0]].ToString();
+
+                    if (string.IsNullOrEmpty(cuota)) continue;
+
+                    var historicoPago = new HistoricoPago();
+
+                    //NumeroCredito
+                    historicoPago.NumeroCredito = creditoId;
+
+
+                    //Cuota
+                    if (!int.TryParse(renglonDataRow[columnasBuscadas[0]].ToString(), out int cuotaNumero))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Cuota"),
+                            NumeroLinea = numeroLinea
+                        });
+                        continue;
+                    }
+
+                    historicoPago.Cuota = cuotaNumero;
+
+                    //Fecha
+                    if (!DateTime.TryParse(renglonDataRow[columnasBuscadas[1]].ToString(), out DateTime fecha))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Fecha"),
+                            NumeroLinea = numeroLinea
+
+                        });
+
+                        continue;
+                    }
+
+                    historicoPago.Fecha = fecha;
+
+                    //Total
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[2]].ToString(), out decimal total))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Total"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.Total = total;
+
+                    //Cargos
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[3]].ToString(), out decimal cargos))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Cargos"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.Cargos = cargos;
+
+                    //Principal
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[4]].ToString(), out decimal principal))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Principal"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.Principal = principal;
+
+
+                    //InteresVigente
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[5]].ToString(), out decimal interesVigente))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "InteresVigente"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.InteresVigente = interesVigente;
+
+
+                    //InteresVencido
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[6]].ToString(), out decimal interesVencido))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "InteresVencido"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.InteresVencido = interesVencido;
+
+                    //InteresOrdinario
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[7]].ToString(), out decimal interesOrdinario))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "InteresOrdinario"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.InteresOrdinario = interesOrdinario;
+
+                    //Cpa
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[8]].ToString(), out decimal cpa))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Cpa"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.Cpa = cpa;
+
+                    //Moratorios
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[9]].ToString(), out decimal moratorios))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Moratorios"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.Moratorios = moratorios;
+
+                    //Iva
+                    if (!decimal.TryParse(renglonDataRow[columnasBuscadas[10]].ToString(), out decimal iva))
+                    {
+                        InsertarRegistroBitacora(new Log
+                        {
+                            DirectorioCreditoId = directorioCreditoId,
+                            Descripcion = string.Format(Log.ErrorCast, "Iva"),
+                            NumeroLinea = numeroLinea
+                        });
+                    }
+
+                    historicoPago.Iva = iva;
+
+
+                    //Agregar historico pagos
+                    historicoPagos.Add(historicoPago);
+
+                    numeroLinea += 1;
+                }
+
+                //Insertar en Base de Datos
+                DbContext.HistoricoPagos.AddRange(historicoPagos);
+                DbContext.SaveChanges();
+
+                Console.WriteLine("Fin de Proceso");
+            } // try
+            catch (Exception eCargar)
+            {
+                throw eCargar;
+            } // catch (Exception eCargar)
+            finally
+            {
+                // Cierra la conexión
+                connExcel.Close();
+            } // finally
         } // private void ExtraerHistoricoPagos(DirectorioCredito tablaHistoricoPagos, int directorioCreditoId, int creditoId)
 
         private void ExtraerTablaAmortizacion(DirectorioCredito tablaMovimientos, int directorioCreditoId, int creditoId)
@@ -59,16 +315,12 @@ namespace ValidacionArchivosRecibidos.Domains
             TipoArchivo.TipoArchivoEnum tipoArchivo;
 
             //Determinar el tipo de formato del archivo:
-
-
             var workbook = new Workbook();
             workbook.LoadFromFile(pathTablaPagos);
             var sheet = workbook.Worksheets[0];
             var infomacionCredito = sheet.Range["B11"].Value;
 
             tipoArchivo = infomacionCredito.Contains("Crédito Folio:") ? TipoArchivo.TipoArchivoEnum.ConFormato : TipoArchivo.TipoArchivoEnum.SinFormato;
-
-
 
             if (tipoArchivo == TipoArchivo.TipoArchivoEnum.ConFormato)
             {
@@ -91,7 +343,7 @@ namespace ValidacionArchivosRecibidos.Domains
 
 
                 workbook.SaveToFile(pathTablaPagos);
-            }
+            } // if (tipoArchivo == TipoArchivo.TipoArchivoEnum.ConFormato)
 
             var stringConexionExcel = string.Format(CadenaDeConexionExcel, pathTablaPagos); //Valor Yes or No depende de si archivo Excel tiene header o no
 
@@ -166,12 +418,12 @@ namespace ValidacionArchivosRecibidos.Domains
 
                 var tablaAmortizacionLista = new List<TablaAmortizacion>();
 
-                var numeroRenglon = 1;
+                var numeroLinea = 1;
                 foreach (DataRow renglonDataRow in dataTable.Rows)
                 {
 
                     //Es menor al ultimo reglon?
-                    if (numeroRenglon < dataTable.Rows.Count)
+                    if (numeroLinea < dataTable.Rows.Count)
                     {
                         var tablaAmorizacion = new TablaAmortizacion();
 
@@ -185,8 +437,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "NumeroCredito")
-
+                                Descripcion = string.Format(Log.ErrorCast, "NumeroCredito"),
+                                NumeroLinea = numeroLinea
                             });
 
                             continue;
@@ -200,7 +452,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "FechaPago")
+                                Descripcion = string.Format(Log.ErrorCast, "FechaPago"),
+                                NumeroLinea = numeroLinea
 
                             });
 
@@ -215,7 +468,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Capital")
+                                Descripcion = string.Format(Log.ErrorCast, "Capital"),
+                                NumeroLinea = numeroLinea
 
                             });
                             continue;
@@ -229,7 +483,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "PagoCapital")
+                                Descripcion = string.Format(Log.ErrorCast, "PagoCapital"),
+                                NumeroLinea = numeroLinea
 
                             });
                         }
@@ -242,7 +497,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "PagoInteresesMoratorios")
+                                Descripcion = string.Format(Log.ErrorCast, "PagoInteresesMoratorios"),
+                                NumeroLinea = numeroLinea
 
                             });
                         }
@@ -256,7 +512,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "PagoInteresesOrdinarios")
+                                Descripcion = string.Format(Log.ErrorCast, "PagoInteresesOrdinarios"),
+                                NumeroLinea = numeroLinea
 
                             });
                         }
@@ -269,7 +526,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "PagoIvaIntereses")
+                                Descripcion = string.Format(Log.ErrorCast, "PagoIvaIntereses"),
+                                NumeroLinea = numeroLinea
 
                             });
                         }
@@ -282,7 +540,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "PagoMensualTotal")
+                                Descripcion = string.Format(Log.ErrorCast, "PagoMensualTotal"),
+                                NumeroLinea = numeroLinea
 
                             });
                         }
@@ -295,7 +554,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "PagoFijoMensual")
+                                Descripcion = string.Format(Log.ErrorCast, "PagoFijoMensual"),
+                                NumeroLinea = numeroLinea
 
                             });
                         }
@@ -306,7 +566,7 @@ namespace ValidacionArchivosRecibidos.Domains
                         //Agregar tabla de amortización
                         tablaAmortizacionLista.Add(tablaAmorizacion);
 
-                        numeroRenglon += 1;
+                        numeroLinea += 1;
 
                     }
                     else
@@ -397,11 +657,11 @@ namespace ValidacionArchivosRecibidos.Domains
 
                 var movimientos = new List<Movimiento>();
 
-                var numeroRenglon = 1;
+                var numeroLinea = 1;
                 foreach (DataRow renglonDataRow in dataTable.Rows)
                 {
                     //Es menor al ultimo reglon?
-                    if (numeroRenglon < dataTable.Rows.Count)
+                    if (numeroLinea < dataTable.Rows.Count)
                     {
                         var movimiento = new Movimiento();
 
@@ -415,7 +675,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Fecha")
+                                Descripcion = string.Format(Log.ErrorCast, "Fecha"),
+                                NumeroLinea = numeroLinea
                             });
 
                             continue;
@@ -433,7 +694,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Capital")
+                                Descripcion = string.Format(Log.ErrorCast, "Capital"),
+                                NumeroLinea = numeroLinea
                             });
                             continue;
                         }
@@ -446,7 +708,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Cargos")
+                                Descripcion = string.Format(Log.ErrorCast, "Cargos"),
+                                NumeroLinea = numeroLinea
                             });
                         }
 
@@ -458,7 +721,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Interes")
+                                Descripcion = string.Format(Log.ErrorCast, "Interes"),
+                                NumeroLinea = numeroLinea
                             });
                         }
 
@@ -471,7 +735,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Moratorios")
+                                Descripcion = string.Format(Log.ErrorCast, "Moratorios"),
+                                NumeroLinea = numeroLinea
                             });
                         }
 
@@ -483,7 +748,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Iva")
+                                Descripcion = string.Format(Log.ErrorCast, "Iva"),
+                                NumeroLinea = numeroLinea
                             });
                         }
 
@@ -495,7 +761,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Otros")
+                                Descripcion = string.Format(Log.ErrorCast, "Otros"),
+                                NumeroLinea = numeroLinea
                             });
                         }
 
@@ -507,7 +774,8 @@ namespace ValidacionArchivosRecibidos.Domains
                             InsertarRegistroBitacora(new Log
                             {
                                 DirectorioCreditoId = directorioCreditoId,
-                                Descripcion = string.Format(Log.ErrorCast, "Total")
+                                Descripcion = string.Format(Log.ErrorCast, "Total"),
+                                NumeroLinea = numeroLinea
                             });
                         }
 
@@ -517,7 +785,7 @@ namespace ValidacionArchivosRecibidos.Domains
                         //Agregar tabla de amortización
                         movimientos.Add(movimiento);
 
-                        numeroRenglon += 1;
+                        numeroLinea += 1;
                     }
                     else
                     {

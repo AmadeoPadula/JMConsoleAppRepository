@@ -17,6 +17,7 @@ namespace ValidacionArchivosRecibidos.Models
         public DbSet<Log> Logs { get; set; }
 
         public DbSet<Movimiento> Movimentos { get; set; }
+        public DbSet<HistoricoPago> HistoricoPagos { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -36,6 +37,9 @@ namespace ValidacionArchivosRecibidos.Models
 
             modelBuilder.Entity<Movimiento>().ToTable("Movimientos")
                 .HasKey(d => d.MovimientoId);
+
+            modelBuilder.Entity<HistoricoPago>().ToTable("HistoricoPagos")
+                .HasKey(d => d.HistoricoPagoId);
 
         }
     }

@@ -22,8 +22,8 @@ namespace ValidacionArchivosRecibidos
         {
             using (var db = new ValidacionContext())
             {
-                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 80).ToList();
-                var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 807).ToList();
+                var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 80).ToList();
+                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 807).ToList();
 
                 var procesarCreditoDomain = new ProcesarCreditoDomain();
                 procesarCreditoDomain.ProcesarArchivosCredito(creditoSeleccionado);
