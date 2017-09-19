@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using ValidacionArchivosRecibidos.Domains;
+using ValidacionArchivosRecibidos.Models;
 
 
 namespace ValidacionArchivosRecibidos
@@ -12,9 +14,21 @@ namespace ValidacionArchivosRecibidos
 
         static void Main(string[] args)
         {
-
-            ProcesarDirectorio(Directorio);
+            //ProcesarDirectorio(Directorio);
+            ImportarHistoriaCreditos();
         }
+
+        public static void ImportarHistoriaCreditos()
+        {
+            using (var db = new ValidacionContext())
+            {
+                var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 80).ToList();
+
+                var procesarCreditoDomain = new ProcesarCreditoDomain();
+                procesarCreditoDomain.ProcesarArchivosCredito(creditoSeleccionado);
+
+            }
+        } // public static void ImportarHistoriaCreditos()
 
         // Process all files in the directory passed in, recurse on any directories 
         // that are found, and process the files they contain.

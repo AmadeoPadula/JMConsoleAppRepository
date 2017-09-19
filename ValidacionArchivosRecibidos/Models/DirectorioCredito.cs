@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ValidacionArchivosRecibidos
+namespace ValidacionArchivosRecibidos.Models
 {
     public class DirectorioCredito
     {
@@ -14,5 +14,7 @@ namespace ValidacionArchivosRecibidos
         public string Archivo { get; set; }
         public long? Tamanio { get; set; }
         public string Ruta { get; set; }
+        public IList<Log> Logs { get; set; }
+
     }
 }

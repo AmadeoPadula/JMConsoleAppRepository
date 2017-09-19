@@ -50,7 +50,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectorioCredito.cs" />
+    <Compile Include="Domains\ProcesarCreditoDomain.cs" />
+    <Compile Include="Migrations\201709182015029_AddTablasAmortizacionEntity.cs" />
+    <Compile Include="Migrations\201709182015029_AddTablasAmortizacionEntity.Designer.cs">
+      <DependentUpon>201709182015029_AddTablasAmortizacionEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709182027470_AddLogEntity.cs" />
+    <Compile Include="Migrations\201709182027470_AddLogEntity.Designer.cs">
+      <DependentUpon>201709182027470_AddLogEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709182335481_AddColumnFechaLogEntity.cs" />
+    <Compile Include="Migrations\201709182335481_AddColumnFechaLogEntity.Designer.cs">
+      <DependentUpon>201709182335481_AddColumnFechaLogEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709190040448_addMovientoEntity.cs" />
+    <Compile Include="Migrations\201709190040448_addMovientoEntity.Designer.cs">
+      <DependentUpon>201709190040448_addMovientoEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DirectorioCredito.cs" />
     <Compile Include="Migrations\201709130148021_Init.cs" />
     <Compile Include="Migrations\201709130148021_Init.Designer.cs">
       <DependentUpon>201709130148021_Init.cs</DependentUpon>
@@ -64,9 +81,12 @@
       <DependentUpon>201709131453335_AddColumnDirectorioCredito_Ruta.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Log.cs" />
+    <Compile Include="Models\Movimiento.cs" />
+    <Compile Include="Models\TablaAmortizacion.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ValidacionContext.cs" />
+    <Compile Include="Models\ValidacionContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -82,6 +102,19 @@
     <EmbeddedResource Include="Migrations\201709131453335_AddColumnDirectorioCredito_Ruta.resx">
       <DependentUpon>201709131453335_AddColumnDirectorioCredito_Ruta.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709182015029_AddTablasAmortizacionEntity.resx">
+      <DependentUpon>201709182015029_AddTablasAmortizacionEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709182027470_AddLogEntity.resx">
+      <DependentUpon>201709182027470_AddLogEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709182335481_AddColumnFechaLogEntity.resx">
+      <DependentUpon>201709182335481_AddColumnFechaLogEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709190040448_addMovientoEntity.resx">
+      <DependentUpon>201709190040448_addMovientoEntity.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
