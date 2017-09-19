@@ -4,6 +4,8 @@ using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using Spire.Xls;
+using ValidacionArchivosRecibidos.Clases;
 using ValidacionArchivosRecibidos.Models;
 
 namespace ValidacionArchivosRecibidos.Domains
@@ -40,14 +42,56 @@ namespace ValidacionArchivosRecibidos.Domains
             if (historicoPagos != null && tablaMovimientos != null)
             {
                 ExtraerTablaMovimientos(tablaMovimientos, directorioCreditoId, creditoId);
+                ExtraerHistoricoPagos(historicoPagos, directorioCreditoId, creditoId);
             } // if (historicoPagos != null && tablaMovimientos != null)
 
         } // public void ProcesarArchivosCredito(List<DirectorioCredito> informacionCredito)
 
+        private void ExtraerHistoricoPagos(DirectorioCredito tablaHistoricoPagos, int directorioCreditoId, int creditoId)
+        {
+
+
+        } // private void ExtraerHistoricoPagos(DirectorioCredito tablaHistoricoPagos, int directorioCreditoId, int creditoId)
 
         private void ExtraerTablaAmortizacion(DirectorioCredito tablaMovimientos, int directorioCreditoId, int creditoId)
         {
             var pathTablaPagos = tablaMovimientos.Ruta;
+            TipoArchivo.TipoArchivoEnum tipoArchivo;
+
+            //Determinar el tipo de formato del archivo:
+
+
+            var workbook = new Workbook();
+            workbook.LoadFromFile(pathTablaPagos);
+            var sheet = workbook.Worksheets[0];
+            var infomacionCredito = sheet.Range["B11"].Value;
+
+            tipoArchivo = infomacionCredito.Contains("Crédito Folio:") ? TipoArchivo.TipoArchivoEnum.ConFormato : TipoArchivo.TipoArchivoEnum.SinFormato;
+
+
+
+            if (tipoArchivo == TipoArchivo.TipoArchivoEnum.ConFormato)
+            {
+                if (!int.TryParse(infomacionCredito.Replace("Crédito Folio:", ""), out int numeroCreditoArchivo))
+                {
+                    throw new Exception("El numero de credito contenido en el archivo no coincide con el archivo procesado: " + pathTablaPagos);
+                } // if (!int.TryParse(infomacionCredito.Replace("Crédito Folio:",""), out int numeroCreditoArchivo))
+            }
+
+            if (tipoArchivo == TipoArchivo.TipoArchivoEnum.ConFormato)
+            {
+                //Descombinar celdas
+                UtileriasClass.UnMergeWorksheet(sheet);
+
+                //Eliminar filas Encabezado
+                UtileriasClass.DeleteRows(sheet, 1, 22);
+
+                //Eliminar intermedio entre encabezado y tabla con valor
+                UtileriasClass.DeleteRows(sheet, 2);
+
+
+                workbook.SaveToFile(pathTablaPagos);
+            }
 
             var stringConexionExcel = string.Format(CadenaDeConexionExcel, pathTablaPagos); //Valor Yes or No depende de si archivo Excel tiene header o no
 
@@ -64,7 +108,11 @@ namespace ValidacionArchivosRecibidos.Domains
                 DataTable dtExcelSchema;
 
                 dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+                var SheetName = dtExcelSchema.Rows[
+                    tipoArchivo == TipoArchivo.TipoArchivoEnum.SinFormato
+                        ? 0
+                        : 1
+                ]["TABLE_NAME"].ToString();
 
                 //Leer la información de la primera página
                 cmdExcel.CommandText = "SELECT * From [" + SheetName + "]";
@@ -79,18 +127,32 @@ namespace ValidacionArchivosRecibidos.Domains
                     DirectorioCreditoId = directorioCreditoId
                 };
 
-                var columnasBuscadas = new[]
-                {
-                    "Numero de Pago",
-                    "Fecha de Pago    ",
-                    "Capital",
-                    "Pago Capital",
-                    "Pago Intereses Moratorios",
-                    "Pago Intereses Ordinarios",
-                    "Pago IVA Intereses",
-                    "Pago Mensual Total",
-                    "Pago Fijo Mensual"
-                };
+                var columnasBuscadas = tipoArchivo == TipoArchivo.TipoArchivoEnum.SinFormato
+                    ? new[]
+                    {
+                        "Numero de Pago",
+                        "Fecha de Pago    ",
+                        "Capital",
+                        "Pago Capital",
+                        "Pago Intereses Moratorios",
+                        "Pago Intereses Ordinarios",
+                        "Pago IVA Intereses",
+                        "Pago Mensual Total",
+                        "Pago Fijo Mensual"
+                    }
+                    : new[]
+                    {
+                        "Numero de Pago",
+                        "Fecha de Pago",
+                        "Capital",
+                        "Pago Capital",
+                        "Pago Intereses Moratorios",
+                        "Pago Intereses ",
+                        "Pago IVA Intereses",
+                        "Pago Mensual Total",
+                        "Pago Fijo Mensual"
+                    };
+
 
 
                 foreach (var columnaActual in columnasBuscadas)
