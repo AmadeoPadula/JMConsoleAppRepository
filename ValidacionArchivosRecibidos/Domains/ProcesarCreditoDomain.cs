@@ -24,44 +24,54 @@ namespace ValidacionArchivosRecibidos.Domains
         public void ProcesarArchivosCredito(List<DirectorioCredito> informacionCredito)
         {
 
+            //Si no existe tabla de amortizacion no se puede procesar
+            var existeTablaAmortizacion = informacionCredito.Any(ic => ic.Archivo == "tab.xls");
+            if (!existeTablaAmortizacion) return;
+
             //Leer archivo de Tabla de pagos
-            var tablaPagos = informacionCredito.First(ic => ic.Archivo == "tab.xls");
-            var creditoId = tablaPagos.CreditoId;
-            var directorioCreditoId = tablaPagos.DirectorioCreditoId;
+            var tablaAmortizacion = informacionCredito.First(ic => ic.Archivo == "tab.xls");
 
-            if (tablaPagos != null)
+            if (tablaAmortizacion != null)
             {
-                //ExtraerTablaAmortizacion(tablaPagos, directorioCreditoId, creditoId);
-
+                if (!tablaAmortizacion.Excepcion)
+                    ExtraerTablaAmortizacion(tablaAmortizacion);
             } // if (tablaPagos != null)
 
             var historicoPagos = informacionCredito.First(ic => ic.Archivo == "hist.xls");
             var tablaMovimientos = informacionCredito.First(ic => ic.Archivo == "mov.xls");
 
-
             if (historicoPagos != null && tablaMovimientos != null)
             {
-                //ExtraerTablaMovimientos(tablaMovimientos, directorioCreditoId, creditoId);
-                ExtraerHistoricoPagos(historicoPagos, directorioCreditoId, creditoId);
+                if (!tablaMovimientos.Excepcion)
+                    ExtraerTablaMovimientos(tablaMovimientos);
+
+                if (!historicoPagos.Excepcion)
+                    ExtraerHistoricoPagos(historicoPagos);
             } // if (historicoPagos != null && tablaMovimientos != null)
 
         } // public void ProcesarArchivosCredito(List<DirectorioCredito> informacionCredito)
 
-        private void ExtraerHistoricoPagos(DirectorioCredito tablaHistoricoPagos, int directorioCreditoId, int creditoId)
+        private void ExtraerHistoricoPagos(DirectorioCredito tablaHistoricoPagos)
         {
             var pathHistoricoPagos = tablaHistoricoPagos.Ruta;
+            var directorioCreditoId = tablaHistoricoPagos.DirectorioCreditoId;
+            var creditoId = tablaHistoricoPagos.CreditoId;
 
-            //Determinar el tipo de formato del archivo:
-            //var workbook = new Workbook();
-            //workbook.LoadFromFile(pathHistoricoPagos);
-            //var sheet = workbook.Worksheets[0];
+            //Validar si el archivo ya fue previamente procesado
+            var procesado = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId).Procesado;
+
+            if (!procesado)
+            {
+                //Editar archivo:
+                var workbook = new Workbook();
+                workbook.LoadFromFile(pathHistoricoPagos);
+                var sheet = workbook.Worksheets[0];
 
 
-            ////Eliminar filas Encabezado
-            //UtileriasClass.DeleteRows(sheet, 1);
-
-
-            //workbook.SaveToFile(pathHistoricoPagos);
+                //Eliminar filas Encabezado
+                UtileriasClass.DeleteRows(sheet, 1);
+                workbook.SaveToFile(pathHistoricoPagos);
+            }
 
             var stringConexionExcel = string.Format(CadenaDeConexionExcel, pathHistoricoPagos); //Valor Yes or No depende de si archivo Excel tiene header o no
 
@@ -128,7 +138,15 @@ namespace ValidacionArchivosRecibidos.Domains
                     //Si aparece la palabra "Cuota" se brinca la fila
                     var cuota = renglonDataRow[columnasBuscadas[0]].ToString();
 
-                    if (string.IsNullOrEmpty(cuota)) continue;
+                    if (cuota.Contains("Cuota")) continue;
+                    if (cuota.Contains("Totales:")) break;
+
+                    if (string.IsNullOrEmpty(cuota))
+                    {
+                        numeroLinea++;
+                        continue;
+                    }
+
 
                     var historicoPago = new HistoricoPago();
 
@@ -145,13 +163,16 @@ namespace ValidacionArchivosRecibidos.Domains
                             Descripcion = string.Format(Log.ErrorCast, "Cuota"),
                             NumeroLinea = numeroLinea
                         });
+
+                        numeroLinea++;
                         continue;
                     }
 
                     historicoPago.Cuota = cuotaNumero;
 
                     //Fecha
-                    if (!DateTime.TryParse(renglonDataRow[columnasBuscadas[1]].ToString(), out DateTime fecha))
+                    var fecha = UtileriasClass.ConvertirCadenaAFecha(renglonDataRow[columnasBuscadas[1]].ToString());
+                    if (fecha == null)
                     {
                         InsertarRegistroBitacora(new Log
                         {
@@ -161,10 +182,11 @@ namespace ValidacionArchivosRecibidos.Domains
 
                         });
 
+                        numeroLinea++;
                         continue;
                     }
 
-                    historicoPago.Fecha = fecha;
+                    historicoPago.Fecha = (DateTime)fecha;
 
                     //Total
                     if (!decimal.TryParse(renglonDataRow[columnasBuscadas[2]].ToString(), out decimal total))
@@ -296,7 +318,16 @@ namespace ValidacionArchivosRecibidos.Domains
                 DbContext.HistoricoPagos.AddRange(historicoPagos);
                 DbContext.SaveChanges();
 
-                Console.WriteLine("Fin de Proceso");
+                if (!procesado)
+                {
+                    var directorioCreditoBaseDatos = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId);
+                    directorioCreditoBaseDatos.Procesado = true;
+                    directorioCreditoBaseDatos.FechaProcesado = DateTime.Now;
+
+                    DbContext.SaveChanges();
+                }
+
+                Console.WriteLine($@"Fin de importacion Historico de Movimientos, Crédito {creditoId}");
             } // try
             catch (Exception eCargar)
             {
@@ -309,9 +340,12 @@ namespace ValidacionArchivosRecibidos.Domains
             } // finally
         } // private void ExtraerHistoricoPagos(DirectorioCredito tablaHistoricoPagos, int directorioCreditoId, int creditoId)
 
-        private void ExtraerTablaAmortizacion(DirectorioCredito tablaMovimientos, int directorioCreditoId, int creditoId)
+        private void ExtraerTablaAmortizacion(DirectorioCredito tablaAmortizacion)
         {
-            var pathTablaPagos = tablaMovimientos.Ruta;
+            var pathTablaPagos = tablaAmortizacion.Ruta;
+            var directorioCreditoId = tablaAmortizacion.DirectorioCreditoId;
+            var creditoId = tablaAmortizacion.CreditoId;
+
             TipoArchivo.TipoArchivoEnum tipoArchivo;
 
             //Determinar el tipo de formato del archivo:
@@ -319,6 +353,9 @@ namespace ValidacionArchivosRecibidos.Domains
             workbook.LoadFromFile(pathTablaPagos);
             var sheet = workbook.Worksheets[0];
             var infomacionCredito = sheet.Range["B11"].Value;
+
+            //Validar si el archivo ya fue previamente procesado
+            var procesado = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId).Procesado;
 
             tipoArchivo = infomacionCredito.Contains("Crédito Folio:") ? TipoArchivo.TipoArchivoEnum.ConFormato : TipoArchivo.TipoArchivoEnum.SinFormato;
 
@@ -332,17 +369,18 @@ namespace ValidacionArchivosRecibidos.Domains
 
             if (tipoArchivo == TipoArchivo.TipoArchivoEnum.ConFormato)
             {
-                //Descombinar celdas
-                UtileriasClass.UnMergeWorksheet(sheet);
+                if (!procesado)
+                {
+                    //Descombinar celdas
+                    UtileriasClass.UnMergeWorksheet(sheet);
 
-                //Eliminar filas Encabezado
-                UtileriasClass.DeleteRows(sheet, 1, 22);
+                    //Eliminar filas Encabezado
+                    UtileriasClass.DeleteRows(sheet, 1, 22);
 
-                //Eliminar intermedio entre encabezado y tabla con valor
-                UtileriasClass.DeleteRows(sheet, 2);
-
-
-                workbook.SaveToFile(pathTablaPagos);
+                    //Eliminar intermedio entre encabezado y tabla con valor
+                    UtileriasClass.DeleteRows(sheet, 2);
+                    workbook.SaveToFile(pathTablaPagos);
+                }
             } // if (tipoArchivo == TipoArchivo.TipoArchivoEnum.ConFormato)
 
             var stringConexionExcel = string.Format(CadenaDeConexionExcel, pathTablaPagos); //Valor Yes or No depende de si archivo Excel tiene header o no
@@ -441,13 +479,15 @@ namespace ValidacionArchivosRecibidos.Domains
                                 NumeroLinea = numeroLinea
                             });
 
+                            numeroLinea++;
                             continue;
                         }
 
                         tablaAmorizacion.NumeroPago = numeroPago;
 
                         //FechaPago
-                        if (!DateTime.TryParse(renglonDataRow[columnasBuscadas[1]].ToString(), out DateTime fechaPago))
+                        var fechaPago = UtileriasClass.ConvertirCadenaAFecha(renglonDataRow[columnasBuscadas[1]].ToString());
+                        if (fechaPago == null)
                         {
                             InsertarRegistroBitacora(new Log
                             {
@@ -457,10 +497,11 @@ namespace ValidacionArchivosRecibidos.Domains
 
                             });
 
+                            numeroLinea++;
                             continue;
                         }
 
-                        tablaAmorizacion.FechaPago = fechaPago;
+                        tablaAmorizacion.FechaPago = (DateTime)fechaPago;
 
                         //Capital
                         if (!decimal.TryParse(renglonDataRow[columnasBuscadas[2]].ToString(), out decimal capital))
@@ -472,6 +513,8 @@ namespace ValidacionArchivosRecibidos.Domains
                                 NumeroLinea = numeroLinea
 
                             });
+
+                            numeroLinea++;
                             continue;
                         }
 
@@ -580,8 +623,16 @@ namespace ValidacionArchivosRecibidos.Domains
                 DbContext.TablasAmortizacion.AddRange(tablaAmortizacionLista);
                 DbContext.SaveChanges();
 
+                if (!procesado)
+                {
+                    var directorioCreditoBaseDatos = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId);
+                    directorioCreditoBaseDatos.Procesado = true;
+                    directorioCreditoBaseDatos.FechaProcesado = DateTime.Now;
 
-                Console.WriteLine("Fin de Proceso");
+                    DbContext.SaveChanges();
+                }
+
+                Console.WriteLine($@"Fin de importacion Tabla de Amortización, Crédito {creditoId}");
 
             } // try
 
@@ -598,9 +649,14 @@ namespace ValidacionArchivosRecibidos.Domains
             } // finally
         } // private void ExtraerTablaAmortizacion(DirectorioCredito tablaMovimientos, int directorioCreditoId, int creditoId)
 
-        private void ExtraerTablaMovimientos(DirectorioCredito tablaMovimientos, int directorioCreditoId, int creditoId)
+        private void ExtraerTablaMovimientos(DirectorioCredito tablaMovimientos)
         {
             var pathTablaMovimientos = tablaMovimientos.Ruta;
+            var directorioCreditoId = tablaMovimientos.DirectorioCreditoId;
+            var creditoId = tablaMovimientos.CreditoId;
+
+            //Validar si el archivo ya fue previamente procesado
+            var procesado = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId).Procesado;
 
             var stringConexionExcel = string.Format(CadenaDeConexionExcel, pathTablaMovimientos); //Valor Yes or No depende de si archivo Excel tiene header o no
 
@@ -660,6 +716,20 @@ namespace ValidacionArchivosRecibidos.Domains
                 var numeroLinea = 1;
                 foreach (DataRow renglonDataRow in dataTable.Rows)
                 {
+
+                    //El archivo esta vacio???
+                    if (dataTable.Rows.Count == 2 && numeroLinea == 1)
+                    {
+                        if (string.IsNullOrEmpty(renglonDataRow[columnasBuscadas[0]].ToString()))
+                            InsertarRegistroBitacora(new Log
+                            {
+                                DirectorioCreditoId = directorioCreditoId,
+                                Descripcion = Log.ErrorArchivoVacio,
+                                NumeroLinea = null
+                            });
+                        break;
+                    }
+
                     //Es menor al ultimo reglon?
                     if (numeroLinea < dataTable.Rows.Count)
                     {
@@ -670,7 +740,8 @@ namespace ValidacionArchivosRecibidos.Domains
 
 
                         //Fecha
-                        if (!DateTime.TryParse(renglonDataRow[columnasBuscadas[0]].ToString(), out DateTime fecha))
+                        var fecha = UtileriasClass.ConvertirCadenaAFecha(renglonDataRow[columnasBuscadas[0]].ToString());
+                        if (fecha == null)
                         {
                             InsertarRegistroBitacora(new Log
                             {
@@ -678,14 +749,14 @@ namespace ValidacionArchivosRecibidos.Domains
                                 Descripcion = string.Format(Log.ErrorCast, "Fecha"),
                                 NumeroLinea = numeroLinea
                             });
-
+                            numeroLinea++;
                             continue;
                         }
 
-                        movimiento.Fecha = fecha;
+                        movimiento.Fecha = (DateTime) fecha;
 
                         //Descripcion
-                        var descripcion = renglonDataRow["Descripcion"].ToString();
+                        var descripcion = renglonDataRow[columnasBuscadas[1]].ToString();
                         movimiento.Descripcion = string.IsNullOrEmpty(descripcion) ? null : descripcion;
 
                         //Capital
@@ -697,6 +768,7 @@ namespace ValidacionArchivosRecibidos.Domains
                                 Descripcion = string.Format(Log.ErrorCast, "Capital"),
                                 NumeroLinea = numeroLinea
                             });
+                            numeroLinea++;
                             continue;
                         }
 
@@ -797,8 +869,18 @@ namespace ValidacionArchivosRecibidos.Domains
                 DbContext.Movimentos.AddRange(movimientos);
                 DbContext.SaveChanges();
 
+                if (!procesado)
+                {
+                    var directorioCreditoBaseDatos = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId);
+                    directorioCreditoBaseDatos.Procesado = true;
+                    directorioCreditoBaseDatos.FechaProcesado = DateTime.Now;
 
-                Console.WriteLine("Fin de Proceso");
+                    DbContext.SaveChanges();
+                }
+
+
+                Console.WriteLine($@"Fin de importacion Tabla de Movimientos, Crédito {creditoId}");
+
             } // try
 
             catch (Exception eCargar)

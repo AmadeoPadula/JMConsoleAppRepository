@@ -15,6 +15,10 @@ namespace ValidacionArchivosRecibidos.Models
         public long? Tamanio { get; set; }
         public string Ruta { get; set; }
         public IList<Log> Logs { get; set; }
+        public bool Procesado { get; set; }
+        public DateTime? FechaProcesado { get; set; }
+        public bool Excepcion { get; set; }
+        public string MotivoExcepcion { get; set; }
 
     }
 }

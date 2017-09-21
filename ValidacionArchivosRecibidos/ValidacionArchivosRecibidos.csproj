@@ -89,6 +89,18 @@
     <Compile Include="Migrations\201709192339148_AddLogColumnNumeroLinea.Designer.cs">
       <DependentUpon>201709192339148_AddLogColumnNumeroLinea.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709201845426_AddProcesadoFechaProcesadoColumnsToDirectorioCreditoEntity.cs" />
+    <Compile Include="Migrations\201709201845426_AddProcesadoFechaProcesadoColumnsToDirectorioCreditoEntity.Designer.cs">
+      <DependentUpon>201709201845426_AddProcesadoFechaProcesadoColumnsToDirectorioCreditoEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709201900264_EditFechaProcesadoNullableColumnToDirectorioCreditoEntity.cs" />
+    <Compile Include="Migrations\201709201900264_EditFechaProcesadoNullableColumnToDirectorioCreditoEntity.Designer.cs">
+      <DependentUpon>201709201900264_EditFechaProcesadoNullableColumnToDirectorioCreditoEntity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.cs" />
+    <Compile Include="Migrations\201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.Designer.cs">
+      <DependentUpon>201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\DirectorioCredito.cs" />
     <Compile Include="Migrations\201709130148021_Init.cs" />
     <Compile Include="Migrations\201709130148021_Init.Designer.cs">
@@ -142,6 +154,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709192339148_AddLogColumnNumeroLinea.resx">
       <DependentUpon>201709192339148_AddLogColumnNumeroLinea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709201845426_AddProcesadoFechaProcesadoColumnsToDirectorioCreditoEntity.resx">
+      <DependentUpon>201709201845426_AddProcesadoFechaProcesadoColumnsToDirectorioCreditoEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709201900264_EditFechaProcesadoNullableColumnToDirectorioCreditoEntity.resx">
+      <DependentUpon>201709201900264_EditFechaProcesadoNullableColumnToDirectorioCreditoEntity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.resx">
+      <DependentUpon>201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

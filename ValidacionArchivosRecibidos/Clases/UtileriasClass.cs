@@ -1,4 +1,5 @@
-﻿using Spire.Xls;
+﻿using System;
+using Spire.Xls;
 
 namespace ValidacionArchivosRecibidos.Clases
 {
@@ -18,6 +19,31 @@ namespace ValidacionArchivosRecibidos.Clases
         {
             sheet.DeleteRow(starRow, endRow);
         }
+
+        public static DateTime? ConvertirCadenaAFecha(string cadena)
+        {
+            DateTime? fechaProcesada;
+
+            if (string.IsNullOrEmpty(cadena)) return null;
+
+            if (!DateTime.TryParse(cadena, out DateTime fecha))
+            {
+
+                if (!DateTime.TryParse(cadena.Substring(0, 10), out DateTime fechaPrimerosDiez))
+                {
+
+                    return null;
+                }
+                fechaProcesada = fechaPrimerosDiez;
+            }
+            else
+            {
+                fechaProcesada = fecha;
+            }
+
+            return fechaProcesada;
+        }
+
 
     } // public class UtileriasClass
 } // namespace ValidacionArchivosRecibidos.Clases

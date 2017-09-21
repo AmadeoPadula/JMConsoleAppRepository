@@ -10,7 +10,9 @@ namespace ValidacionArchivosRecibidos
     class Program
     {
         //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.12\Creditos Activos\Creditos Activos\";
-        private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.13\Créditos Activos\";
+        //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.13\Créditos Activos\";
+        private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.18\Créditos Activos\";
+
 
         static void Main(string[] args)
         {
@@ -22,13 +24,48 @@ namespace ValidacionArchivosRecibidos
         {
             using (var db = new ValidacionContext())
             {
-                var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 80).ToList();
+
+                ////---------//
+                ////UNO X UNO//
+                ////---------//
+
+                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 80).ToList();
+                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 81).ToList();
                 //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 807).ToList();
 
-                var procesarCreditoDomain = new ProcesarCreditoDomain();
-                procesarCreditoDomain.ProcesarArchivosCredito(creditoSeleccionado);
 
-            }
+                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 371).ToList();
+
+                //var procesarCreditoDomain = new ProcesarCreditoDomain();
+                //procesarCreditoDomain.ProcesarArchivosCredito(creditoSeleccionado);
+
+
+                ////------//
+                ////MASIVO//
+                ////------//
+
+                var listadoCreditos = db.DirectoriosCreditos.Where(dc => dc.Autor == "Rodrigo").OrderBy(dc => dc.CreditoId).Select(dc => dc.CreditoId).Distinct().ToList();
+                foreach (var rowCredito in listadoCreditos)
+                {
+
+                    //if (rowCredito == 349) continue; //El historico de pagos esta mal formateado.
+                    //if (rowCredito == 394) continue; //El archivo de movimientos y el historico de pagos se exportaron "con headers"
+
+
+                    //if (rowCredito == 405) continue; //La tabla de amortizacion viene en formato PDF
+                    //if (rowCredito == 426) continue; //La tabla de amortizacion viene en formato PDF
+                    //if (rowCredito == 437) continue; //La tabla de amortizacion viene en formato PDF
+                    //if (rowCredito == 462) continue; //La tabla de amortizacion viene en formato PDF
+                    //if (rowCredito == 503) continue; //La tabla de amortizacion viene en formato PDF
+
+                    var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == rowCredito).ToList();
+
+                    var procesarCreditoDomain = new ProcesarCreditoDomain();
+                    procesarCreditoDomain.ProcesarArchivosCredito(creditoSeleccionado);
+                }
+
+
+            } // using (var db = new ValidacionContext())
         } // public static void ImportarHistoriaCreditos()
 
         // Process all files in the directory passed in, recurse on any directories 
