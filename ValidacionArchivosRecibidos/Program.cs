@@ -11,13 +11,17 @@ namespace ValidacionArchivosRecibidos
     {
         //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.12\Creditos Activos\Creditos Activos\";
         //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.13\Créditos Activos\";
-        private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.18\Créditos Activos\";
+        //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.18\Créditos Activos\";
+        //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.25\Creditos Activos\";
+
+
+        private const string Directorio = @"C:\Users\arheg\Documents\MigracionJM\Recibidos\2017.09.27\CreditosActivos\";
 
 
         static void Main(string[] args)
         {
-            //ProcesarDirectorio(Directorio);
-            ImportarHistoriaCreditos();
+            ProcesarDirectorio(Directorio);
+            //ImportarHistoriaCreditos();
         }
 
         public static void ImportarHistoriaCreditos()
