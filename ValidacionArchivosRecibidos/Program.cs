@@ -14,14 +14,12 @@ namespace ValidacionArchivosRecibidos
         //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.18\Créditos Activos\";
         //private const string Directorio = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Migracion\Recibidos\2017.09.25\Creditos Activos\";
 
-
         private const string Directorio = @"C:\Users\arheg\Documents\MigracionJM\Recibidos\2017.09.27\CreditosActivos\";
-
 
         static void Main(string[] args)
         {
-            ProcesarDirectorio(Directorio);
-            //ImportarHistoriaCreditos();
+            //ProcesarDirectorio(Directorio);
+            ImportarHistoriaCreditos();
         }
 
         public static void ImportarHistoriaCreditos()
@@ -33,28 +31,21 @@ namespace ValidacionArchivosRecibidos
                 ////UNO X UNO//
                 ////---------//
 
-                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 80).ToList();
-                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 81).ToList();
-                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 807).ToList();
-
-
-                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 371).ToList();
+                //var creditoSeleccionado = db.DirectoriosCreditos.Where(dc => dc.CreditoId == 866).ToList();
 
                 //var procesarCreditoDomain = new ProcesarCreditoDomain();
                 //procesarCreditoDomain.ProcesarArchivosCredito(creditoSeleccionado);
-
 
                 ////------//
                 ////MASIVO//
                 ////------//
 
-                var listadoCreditos = db.DirectoriosCreditos.Where(dc => dc.Autor == "Rodrigo").OrderBy(dc => dc.CreditoId).Select(dc => dc.CreditoId).Distinct().ToList();
+                //var listadoCreditos = db.DirectoriosCreditos.Where(dc => dc.Autor == "Victor").OrderBy(dc => dc.CreditoId).Select(dc => dc.CreditoId).Distinct().ToList();
+                var listadoCreditos = db.DirectoriosCreditos.OrderBy(dc => dc.CreditoId).Select(dc => dc.CreditoId).Distinct().ToList();
+
                 foreach (var rowCredito in listadoCreditos)
                 {
-
                     //if (rowCredito == 349) continue; //El historico de pagos esta mal formateado.
-                    //if (rowCredito == 394) continue; //El archivo de movimientos y el historico de pagos se exportaron "con headers"
-
 
                     //if (rowCredito == 405) continue; //La tabla de amortizacion viene en formato PDF
                     //if (rowCredito == 426) continue; //La tabla de amortizacion viene en formato PDF
@@ -141,5 +132,5 @@ namespace ValidacionArchivosRecibidos
             }
         }
 
-    }
-}
+    } // class Program
+} // namespace ValidacionArchivosRecibidos

@@ -25,11 +25,11 @@ namespace ValidacionArchivosRecibidos.Domains
         {
 
             //Si no existe tabla de amortizacion no se puede procesar
-            var existeTablaAmortizacion = informacionCredito.Any(ic => ic.Archivo == "tab.xls");
+            var existeTablaAmortizacion = informacionCredito.Any(ic => ic.Archivo.ToLower() == "tab.xls");
             if (!existeTablaAmortizacion) return;
 
             //Leer archivo de Tabla de pagos
-            var tablaAmortizacion = informacionCredito.First(ic => ic.Archivo == "tab.xls");
+            var tablaAmortizacion = informacionCredito.First(ic => ic.Archivo.ToLower() == "tab.xls");
 
             if (tablaAmortizacion != null)
             {
@@ -37,8 +37,8 @@ namespace ValidacionArchivosRecibidos.Domains
                     ExtraerTablaAmortizacion(tablaAmortizacion);
             } // if (tablaPagos != null)
 
-            var historicoPagos = informacionCredito.First(ic => ic.Archivo == "hist.xls");
-            var tablaMovimientos = informacionCredito.First(ic => ic.Archivo == "mov.xls");
+            var historicoPagos = informacionCredito.FirstOrDefault(ic => ic.Archivo.ToLower() == "hist.xls");
+            var tablaMovimientos = informacionCredito.FirstOrDefault(ic => ic.Archivo.ToLower() == "mov.xls");
 
             if (historicoPagos != null && tablaMovimientos != null)
             {
@@ -314,9 +314,24 @@ namespace ValidacionArchivosRecibidos.Domains
                     numeroLinea += 1;
                 }
 
-                //Insertar en Base de Datos
-                DbContext.HistoricoPagos.AddRange(historicoPagos);
-                DbContext.SaveChanges();
+
+                //Validar si el archivo esta vacío
+                if (historicoPagos.Count > 0)
+                {
+                    //Insertar en Base de Datos
+                    DbContext.HistoricoPagos.AddRange(historicoPagos);
+                    DbContext.SaveChanges();
+                }
+                else
+                {
+                    InsertarRegistroBitacora(new Log
+                    {
+                        DirectorioCreditoId = directorioCreditoId,
+                        Descripcion = Log.ErrorArchivoVacio,
+                        NumeroLinea = numeroLinea
+                    });
+                } // if (historicoPagos.Count > 0)
+
 
                 if (!procesado)
                 {
@@ -865,18 +880,34 @@ namespace ValidacionArchivosRecibidos.Domains
                     }
                 }
 
-                //Insertar en Base de Datos
-                DbContext.Movimentos.AddRange(movimientos);
-                DbContext.SaveChanges();
 
-                if (!procesado)
+
+                //Validar si el archivo esta vacio
+                if (movimientos.Count > 0)
                 {
-                    var directorioCreditoBaseDatos = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId);
-                    directorioCreditoBaseDatos.Procesado = true;
-                    directorioCreditoBaseDatos.FechaProcesado = DateTime.Now;
-
+                    //Insertar en Base de Datos
+                    DbContext.Movimentos.AddRange(movimientos);
                     DbContext.SaveChanges();
+
+                    if (!procesado)
+                    {
+                        var directorioCreditoBaseDatos = DbContext.DirectoriosCreditos.FirstOrDefault(dc => dc.DirectorioCreditoId == directorioCreditoId);
+                        directorioCreditoBaseDatos.Procesado = true;
+                        directorioCreditoBaseDatos.FechaProcesado = DateTime.Now;
+
+                        DbContext.SaveChanges();
+                    }
                 }
+                else
+                {
+                    InsertarRegistroBitacora(new Log
+                    {
+                        DirectorioCreditoId = directorioCreditoId,
+                        Descripcion = Log.ErrorArchivoVacio,
+                        NumeroLinea = numeroLinea
+                    });
+                }
+
 
 
                 Console.WriteLine($@"Fin de importacion Tabla de Movimientos, Crédito {creditoId}");
