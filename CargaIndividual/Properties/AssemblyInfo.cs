@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // La información general de un ensamblado se controla mediante el siguiente 
 // conjunto de atributos. Cambie estos valores de atributo para modificar la información
 // asociada con un ensamblado.
-[assembly: AssemblyTitle("MigracionCarteraJMAspose")]
+[assembly: AssemblyTitle("CargaIndividual")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MigracionCarteraJMAspose")]
+[assembly: AssemblyProduct("CargaIndividual")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // El siguiente GUID sirve como id. de typelib si este proyecto se expone a COM.
-[assembly: Guid("9fea0324-86a0-4d75-9bff-d2a1fa0d999b")]
+[assembly: Guid("6a23b45c-74c6-47d4-a928-af4381fc7ac5")]
 
 // La información de versión de un ensamblado consta de los cuatro valores siguientes:
 //

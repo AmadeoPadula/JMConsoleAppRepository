@@ -19,7 +19,7 @@ namespace ValidacionArchivosRecibidos
         static void Main(string[] args)
         {
             //ProcesarDirectorio(Directorio);
-            ImportarHistoriaCreditos();
+            //ImportarHistoriaCreditos();
         }
 
         public static void ImportarHistoriaCreditos()
