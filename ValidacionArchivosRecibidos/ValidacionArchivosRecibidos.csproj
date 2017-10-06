@@ -101,6 +101,10 @@
     <Compile Include="Migrations\201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.Designer.cs">
       <DependentUpon>201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201710052003331_AddColumnFechaAltaTodasEntidades.cs" />
+    <Compile Include="Migrations\201710052003331_AddColumnFechaAltaTodasEntidades.Designer.cs">
+      <DependentUpon>201710052003331_AddColumnFechaAltaTodasEntidades.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\DirectorioCredito.cs" />
     <Compile Include="Migrations\201709130148021_Init.cs" />
     <Compile Include="Migrations\201709130148021_Init.Designer.cs">
@@ -163,6 +167,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.resx">
       <DependentUpon>201709210114564_AddColumsExpcionMotivoExcepcionTableDirectorioCredito.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710052003331_AddColumnFechaAltaTodasEntidades.resx">
+      <DependentUpon>201710052003331_AddColumnFechaAltaTodasEntidades.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

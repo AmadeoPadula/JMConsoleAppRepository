@@ -19,6 +19,7 @@ namespace ValidacionArchivosRecibidos.Models
         public DateTime? FechaProcesado { get; set; }
         public bool Excepcion { get; set; }
         public string MotivoExcepcion { get; set; }
+        public DateTime? FechaAlta { get; set; } = DateTime.Now;
 
     }
 }

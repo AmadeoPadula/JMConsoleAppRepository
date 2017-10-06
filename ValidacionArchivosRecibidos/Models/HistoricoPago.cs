@@ -18,6 +18,7 @@ namespace ValidacionArchivosRecibidos.Models
         public decimal Cpa { get; set; }
         public decimal Moratorios { get; set; }
         public decimal Iva { get; set; }
+        public DateTime? FechaAlta { get; set; } = DateTime.Now;
 
     } // public class HistoricoPago
 } // namespace ValidacionArchivosRecibidos.Models

@@ -32,8 +32,29 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.Common, Version=1.2.728.6040, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.XLS.7.12.90\lib\net40\Spire.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.License, Version=1.3.6.40, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.XLS.7.12.90\lib\net40\Spire.License.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.Pdf, Version=3.9.365.6040, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.XLS.7.12.90\lib\net40\Spire.Pdf.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.XLS, Version=7.12.90.6040, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.XLS.7.12.90\lib\net40\Spire.XLS.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,16 +66,59 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clases\Log.cs" />
+    <Compile Include="Clases\TipoArchivo.cs" />
+    <Compile Include="Clases\UtileriasClass.cs" />
+    <Compile Include="DirectoriosCreditos.cs">
+      <DependentUpon>JMValidacionesDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Domains\ProcesarCreditoDomain.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="HistoricoPagos.cs">
+      <DependentUpon>JMValidacionesDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="JMValidacionesDBModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JMValidacionesDBModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="JMValidacionesDBModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JMValidacionesDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="JMValidacionesDBModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JMValidacionesDBModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="LogDetalle.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LogDetalle.Designer.cs">
+      <DependentUpon>LogDetalle.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Logs.cs">
+      <DependentUpon>JMValidacionesDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Movimientos.cs">
+      <DependentUpon>JMValidacionesDBModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TablasAmortizacion.cs">
+      <DependentUpon>JMValidacionesDBModel.tt</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LogDetalle.resx">
+      <DependentUpon>LogDetalle.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -65,6 +129,14 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EntityDeploy Include="JMValidacionesDBModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>JMValidacionesDBModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="JMValidacionesDBModel.edmx.diagram">
+      <DependentUpon>JMValidacionesDBModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -77,6 +149,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="JMValidacionesDBModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>JMValidacionesDBModel.edmx</DependentUpon>
+      <LastGenOutput>JMValidacionesDBModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="JMValidacionesDBModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>JMValidacionesDBModel.edmx</DependentUpon>
+      <LastGenOutput>JMValidacionesDBModel.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

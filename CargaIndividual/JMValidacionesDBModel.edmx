@@ -1,0 +1,331 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="JMValidacionesDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="DirectoriosCreditos">
+          <Key>
+            <PropertyRef Name="DirectorioCreditoId" />
+          </Key>
+          <Property Name="DirectorioCreditoId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Autor" Type="nvarchar(max)" />
+          <Property Name="CreditoId" Type="int" Nullable="false" />
+          <Property Name="Archivo" Type="nvarchar(max)" />
+          <Property Name="Tamanio" Type="bigint" />
+          <Property Name="Ruta" Type="nvarchar(max)" />
+          <Property Name="Procesado" Type="bit" Nullable="false" />
+          <Property Name="FechaProcesado" Type="datetime" />
+          <Property Name="Excepcion" Type="bit" Nullable="false" />
+          <Property Name="MotivoExcepcion" Type="nvarchar(max)" />
+          <Property Name="FechaAlta" Type="datetime" />
+        </EntityType>
+        <EntityType Name="HistoricoPagos">
+          <Key>
+            <PropertyRef Name="HistoricoPagoId" />
+          </Key>
+          <Property Name="HistoricoPagoId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NumeroCredito" Type="int" Nullable="false" />
+          <Property Name="Cuota" Type="int" Nullable="false" />
+          <Property Name="Fecha" Type="datetime" Nullable="false" />
+          <Property Name="Total" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Cargos" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Principal" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="InteresVigente" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="InteresVencido" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="InteresOrdinario" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Cpa" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Moratorios" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Iva" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="FechaAlta" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Logs">
+          <Key>
+            <PropertyRef Name="LogId" />
+          </Key>
+          <Property Name="LogId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DirectorioCreditoId" Type="int" Nullable="false" />
+          <Property Name="Descripcion" Type="nvarchar(max)" />
+          <Property Name="Fecha" Type="datetime" Nullable="false" />
+          <Property Name="NumeroLinea" Type="int" />
+        </EntityType>
+        <EntityType Name="Movimientos">
+          <Key>
+            <PropertyRef Name="MovimientoId" />
+          </Key>
+          <Property Name="MovimientoId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NumeroCredito" Type="int" Nullable="false" />
+          <Property Name="Fecha" Type="datetime" Nullable="false" />
+          <Property Name="Descripcion" Type="nvarchar(max)" />
+          <Property Name="Capital" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Cargos" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Interes" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Moratorios" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Iva" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Otros" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Total" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="FechaAlta" Type="datetime" />
+        </EntityType>
+        <EntityType Name="TablasAmortizacion">
+          <Key>
+            <PropertyRef Name="TablaAmortizacionId" />
+          </Key>
+          <Property Name="TablaAmortizacionId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="NumeroCredito" Type="int" Nullable="false" />
+          <Property Name="NumeroPago" Type="int" Nullable="false" />
+          <Property Name="FechaPago" Type="datetime" Nullable="false" />
+          <Property Name="Capital" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PagoCapital" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PagoInteresesMoratorios" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PagoInteresesOrdinarios" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PagoIvaIntereses" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PagoMensualTotal" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="PagoFijoMensual" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="FechaAlta" Type="datetime" />
+        </EntityType>
+        <Association Name="FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId">
+          <End Role="DirectoriosCreditos" Type="Self.DirectoriosCreditos" Multiplicity="1" />
+          <End Role="Logs" Type="Self.Logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DirectoriosCreditos">
+              <PropertyRef Name="DirectorioCreditoId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="DirectorioCreditoId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="JMValidacionesDBModelStoreContainer">
+          <EntitySet Name="DirectoriosCreditos" EntityType="Self.DirectoriosCreditos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="HistoricoPagos" EntityType="Self.HistoricoPagos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Logs" EntityType="Self.Logs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Movimientos" EntityType="Self.Movimientos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TablasAmortizacion" EntityType="Self.TablasAmortizacion" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId" Association="Self.FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId">
+            <End Role="DirectoriosCreditos" EntitySet="DirectoriosCreditos" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="JMValidacionesDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="JMValidacionesDBContext" annotation:LazyLoadingEnabled="true" >
+          <EntitySet Name="DirectoriosCreditos" EntityType="JMValidacionesDBModel.DirectoriosCreditos" />
+          <EntitySet Name="HistoricoPagos" EntityType="JMValidacionesDBModel.HistoricoPagos" />
+          <EntitySet Name="Logs" EntityType="JMValidacionesDBModel.Logs" />
+          <EntitySet Name="Movimientos" EntityType="JMValidacionesDBModel.Movimientos" />
+          <EntitySet Name="TablasAmortizacion" EntityType="JMValidacionesDBModel.TablasAmortizacion" />
+          <AssociationSet Name="FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId" Association="JMValidacionesDBModel.FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId">
+            <End Role="DirectoriosCreditos" EntitySet="DirectoriosCreditos" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="DirectoriosCreditos">
+          <Key>
+            <PropertyRef Name="DirectorioCreditoId" />
+          </Key>
+          <Property Name="DirectorioCreditoId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Autor" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreditoId" Type="Int32" Nullable="false" />
+          <Property Name="Archivo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Tamanio" Type="Int64" />
+          <Property Name="Ruta" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Procesado" Type="Boolean" Nullable="false" />
+          <Property Name="FechaProcesado" Type="DateTime" Precision="3" />
+          <Property Name="Excepcion" Type="Boolean" Nullable="false" />
+          <Property Name="MotivoExcepcion" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FechaAlta" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Logs" Relationship="JMValidacionesDBModel.FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId" FromRole="DirectoriosCreditos" ToRole="Logs" />
+        </EntityType>
+        <EntityType Name="HistoricoPagos">
+          <Key>
+            <PropertyRef Name="HistoricoPagoId" />
+          </Key>
+          <Property Name="HistoricoPagoId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NumeroCredito" Type="Int32" Nullable="false" />
+          <Property Name="Cuota" Type="Int32" Nullable="false" />
+          <Property Name="Fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Total" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Cargos" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Principal" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="InteresVigente" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="InteresVencido" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="InteresOrdinario" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Cpa" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Moratorios" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Iva" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="FechaAlta" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Logs">
+          <Key>
+            <PropertyRef Name="LogId" />
+          </Key>
+          <Property Name="LogId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DirectorioCreditoId" Type="Int32" Nullable="false" />
+          <Property Name="Descripcion" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="NumeroLinea" Type="Int32" />
+          <NavigationProperty Name="DirectoriosCreditos" Relationship="JMValidacionesDBModel.FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId" FromRole="Logs" ToRole="DirectoriosCreditos" />
+        </EntityType>
+        <EntityType Name="Movimientos">
+          <Key>
+            <PropertyRef Name="MovimientoId" />
+          </Key>
+          <Property Name="MovimientoId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NumeroCredito" Type="Int32" Nullable="false" />
+          <Property Name="Fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Descripcion" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Capital" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Cargos" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Interes" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Moratorios" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Iva" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Otros" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Total" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="FechaAlta" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="TablasAmortizacion">
+          <Key>
+            <PropertyRef Name="TablaAmortizacionId" />
+          </Key>
+          <Property Name="TablaAmortizacionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NumeroCredito" Type="Int32" Nullable="false" />
+          <Property Name="NumeroPago" Type="Int32" Nullable="false" />
+          <Property Name="FechaPago" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Capital" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="PagoCapital" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="PagoInteresesMoratorios" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="PagoInteresesOrdinarios" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="PagoIvaIntereses" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="PagoMensualTotal" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="PagoFijoMensual" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="FechaAlta" Type="DateTime" Precision="3" />
+        </EntityType>
+        <Association Name="FK_dbo_Logs_dbo_DirectoriosCreditos_DirectorioCreditoId">
+          <End Type="JMValidacionesDBModel.DirectoriosCreditos" Role="DirectoriosCreditos" Multiplicity="1" />
+          <End Type="JMValidacionesDBModel.Logs" Role="Logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DirectoriosCreditos">
+              <PropertyRef Name="DirectorioCreditoId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="DirectorioCreditoId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="JMValidacionesDBModelStoreContainer" CdmEntityContainer="JMValidacionesDBContext" >
+          <EntitySetMapping Name="DirectoriosCreditos">
+            <EntityTypeMapping TypeName="JMValidacionesDBModel.DirectoriosCreditos">
+              <MappingFragment StoreEntitySet="DirectoriosCreditos">
+                <ScalarProperty Name="FechaAlta" ColumnName="FechaAlta" />
+                <ScalarProperty Name="MotivoExcepcion" ColumnName="MotivoExcepcion" />
+                <ScalarProperty Name="Excepcion" ColumnName="Excepcion" />
+                <ScalarProperty Name="FechaProcesado" ColumnName="FechaProcesado" />
+                <ScalarProperty Name="Procesado" ColumnName="Procesado" />
+                <ScalarProperty Name="Ruta" ColumnName="Ruta" />
+                <ScalarProperty Name="Tamanio" ColumnName="Tamanio" />
+                <ScalarProperty Name="Archivo" ColumnName="Archivo" />
+                <ScalarProperty Name="CreditoId" ColumnName="CreditoId" />
+                <ScalarProperty Name="Autor" ColumnName="Autor" />
+                <ScalarProperty Name="DirectorioCreditoId" ColumnName="DirectorioCreditoId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HistoricoPagos">
+            <EntityTypeMapping TypeName="JMValidacionesDBModel.HistoricoPagos">
+              <MappingFragment StoreEntitySet="HistoricoPagos">
+                <ScalarProperty Name="FechaAlta" ColumnName="FechaAlta" />
+                <ScalarProperty Name="Iva" ColumnName="Iva" />
+                <ScalarProperty Name="Moratorios" ColumnName="Moratorios" />
+                <ScalarProperty Name="Cpa" ColumnName="Cpa" />
+                <ScalarProperty Name="InteresOrdinario" ColumnName="InteresOrdinario" />
+                <ScalarProperty Name="InteresVencido" ColumnName="InteresVencido" />
+                <ScalarProperty Name="InteresVigente" ColumnName="InteresVigente" />
+                <ScalarProperty Name="Principal" ColumnName="Principal" />
+                <ScalarProperty Name="Cargos" ColumnName="Cargos" />
+                <ScalarProperty Name="Total" ColumnName="Total" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="Cuota" ColumnName="Cuota" />
+                <ScalarProperty Name="NumeroCredito" ColumnName="NumeroCredito" />
+                <ScalarProperty Name="HistoricoPagoId" ColumnName="HistoricoPagoId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Logs">
+            <EntityTypeMapping TypeName="JMValidacionesDBModel.Logs">
+              <MappingFragment StoreEntitySet="Logs">
+                <ScalarProperty Name="NumeroLinea" ColumnName="NumeroLinea" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="DirectorioCreditoId" ColumnName="DirectorioCreditoId" />
+                <ScalarProperty Name="LogId" ColumnName="LogId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Movimientos">
+            <EntityTypeMapping TypeName="JMValidacionesDBModel.Movimientos">
+              <MappingFragment StoreEntitySet="Movimientos">
+                <ScalarProperty Name="FechaAlta" ColumnName="FechaAlta" />
+                <ScalarProperty Name="Total" ColumnName="Total" />
+                <ScalarProperty Name="Otros" ColumnName="Otros" />
+                <ScalarProperty Name="Iva" ColumnName="Iva" />
+                <ScalarProperty Name="Moratorios" ColumnName="Moratorios" />
+                <ScalarProperty Name="Interes" ColumnName="Interes" />
+                <ScalarProperty Name="Cargos" ColumnName="Cargos" />
+                <ScalarProperty Name="Capital" ColumnName="Capital" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="NumeroCredito" ColumnName="NumeroCredito" />
+                <ScalarProperty Name="MovimientoId" ColumnName="MovimientoId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TablasAmortizacion">
+            <EntityTypeMapping TypeName="JMValidacionesDBModel.TablasAmortizacion">
+              <MappingFragment StoreEntitySet="TablasAmortizacion">
+                <ScalarProperty Name="FechaAlta" ColumnName="FechaAlta" />
+                <ScalarProperty Name="PagoFijoMensual" ColumnName="PagoFijoMensual" />
+                <ScalarProperty Name="PagoMensualTotal" ColumnName="PagoMensualTotal" />
+                <ScalarProperty Name="PagoIvaIntereses" ColumnName="PagoIvaIntereses" />
+                <ScalarProperty Name="PagoInteresesOrdinarios" ColumnName="PagoInteresesOrdinarios" />
+                <ScalarProperty Name="PagoInteresesMoratorios" ColumnName="PagoInteresesMoratorios" />
+                <ScalarProperty Name="PagoCapital" ColumnName="PagoCapital" />
+                <ScalarProperty Name="Capital" ColumnName="Capital" />
+                <ScalarProperty Name="FechaPago" ColumnName="FechaPago" />
+                <ScalarProperty Name="NumeroPago" ColumnName="NumeroPago" />
+                <ScalarProperty Name="NumeroCredito" ColumnName="NumeroCredito" />
+                <ScalarProperty Name="TablaAmortizacionId" ColumnName="TablaAmortizacionId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

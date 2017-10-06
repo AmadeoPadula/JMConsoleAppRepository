@@ -19,6 +19,7 @@ namespace ValidacionArchivosRecibidos.Models
         public decimal PagoIvaIntereses { get; set; }
         public decimal PagoMensualTotal { get; set; }
         public decimal PagoFijoMensual { get; set; }
+        public DateTime? FechaAlta { get; set; } = DateTime.Now;
 
     } // public class TablaAmortizacion
 } // public class TablaAmortizacion

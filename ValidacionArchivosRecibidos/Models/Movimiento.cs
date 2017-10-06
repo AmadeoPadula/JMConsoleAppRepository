@@ -19,5 +19,6 @@ namespace ValidacionArchivosRecibidos.Models
         public decimal Iva { get; set; }
         public decimal Otros { get; set; }
         public decimal Total { get; set; }
+        public DateTime? FechaAlta { get; set; } = DateTime.Now;
     }
 }
