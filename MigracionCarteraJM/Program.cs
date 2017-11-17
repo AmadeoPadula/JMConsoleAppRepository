@@ -13,11 +13,11 @@ namespace MigracionCarteraJM
 
         private const string CadenaDeConexionExcel = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties='Excel 8.0;HDR=YES;';";
 
-        private const string ListadoGeneralClientes = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Reportes\ListadoClientes.xls";
+        private const string ListadoGeneralClientes = @"C:\Users\arheg\Documents\MigracionJM\Recibidos\2017.11.15\Créditos Activos\Listado Clientes.xls";
 
-        private const string ReporteMaestro = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Reportes\Reporte Maestro.xls";
+        private const string ReporteMaestro = @"C:\Users\arheg\Documents\MigracionJM\Recibidos\2017.11.15\Créditos Activos\Listado Maestro13112017.xls";
 
-        private const string BaseCreditos = @"C:\Users\arheg\OneDrive - ADSERTI SA de CV\JM\Reportes\Base de Creditos.xls";
+        private const string BaseCreditos = @"C:\Users\arheg\Documents\MigracionJM\Recibidos\2017.11.15\Créditos Activos\Base Créditos 13112017.xls";
 
 
         static void Main(string[] args)
@@ -59,8 +59,8 @@ namespace MigracionCarteraJM
                 DataTable dtExcelSchema;
 
                 dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                //string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
-                string SheetName = dtExcelSchema.Rows[1]["TABLE_NAME"].ToString();
+                string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+                //string SheetName = dtExcelSchema.Rows[1]["TABLE_NAME"].ToString();
 
                 //Leer la información de la primera página
                 cmdExcel.CommandText = "SELECT * From [" + SheetName + "]";
@@ -347,11 +347,17 @@ namespace MigracionCarteraJM
 
                     //-----INICA DESFASE DE COLUMNAS 1
                     //Ingresos
+                    if (!decimal.TryParse(renglonDataRow["Ingresos"].ToString(), out decimal ingresos))
+                    {
+                        continue;
+                    }
+
+                    baseCredito.Ingresos = ingresos;
 
                     //Egresos
 
                     //BandaMorosidad
-                    if (!int.TryParse(renglonDataRow["Ingresos"].ToString(), out int bandaMorosidad))
+                    if (!int.TryParse(renglonDataRow["Egresos"].ToString(), out int bandaMorosidad))
                     {
                         continue;
                     }
@@ -359,11 +365,11 @@ namespace MigracionCarteraJM
                     baseCredito.BandaMorosidad = bandaMorosidad;
 
                     //Municipio
-                    var municipio = renglonDataRow["Egresos"].ToString();
+                    var municipio = renglonDataRow["Banda Morosidad"].ToString();
                     baseCredito.Municipio = string.IsNullOrEmpty(municipio) ? null : municipio;
 
                     //NumeroHabitantes
-                    if (!int.TryParse(renglonDataRow["Banda Morosidad"].ToString(), out int numeroHabitantes))
+                    if (!int.TryParse(renglonDataRow["Municipio"].ToString(), out int numeroHabitantes))
                     {
                         continue;
                     }
@@ -372,11 +378,11 @@ namespace MigracionCarteraJM
 
 
                     //ZonaMarginal
-                    var zonaMarginal = renglonDataRow["Municipio"].ToString();
+                    var zonaMarginal = renglonDataRow["# Habitantes"].ToString();
                     baseCredito.ZonaMarginal = string.IsNullOrEmpty(zonaMarginal) ? null : zonaMarginal;
 
                     //Estado
-                    var estado = renglonDataRow["# Habitantes"].ToString();
+                    var estado = renglonDataRow["Zona Marginal"].ToString();
                     baseCredito.Estado = string.IsNullOrEmpty(estado) ? null : estado;
 
                     baseCreditos.Add(baseCredito);
@@ -810,19 +816,19 @@ namespace MigracionCarteraJM
             var archivoTrabajo = ListadoGeneralClientes;
 
             //Abrir documento excel
-            Workbook workbook = new Workbook();
+            //Workbook workbook = new Workbook();
 
-            workbook.LoadFromFile(archivoTrabajo);
+            //workbook.LoadFromFile(archivoTrabajo);
 
-            Worksheet sheet = workbook.Worksheets[0];
+            //Worksheet sheet = workbook.Worksheets[0];
 
-            //Descombinar celdas
-            UnMergeWorksheet(sheet);
+            ////Descombinar celdas
+            //UnMergeWorksheet(sheet);
 
-            //Eliminar filas Encabezado
-            DeleteRows(sheet, 1, 6);
+            ////Eliminar filas Encabezado
+            //DeleteRows(sheet, 1, 6);
 
-            workbook.SaveToFile(archivoTrabajo);
+            //workbook.SaveToFile(archivoTrabajo);
 
             var stringConexionExcel = String.Format(CadenaDeConexionExcel, archivoTrabajo);//Valor Yes or No depende de si archivo Excel tiene header o no
 
@@ -839,8 +845,8 @@ namespace MigracionCarteraJM
                 connExcel.Open();
                 DataTable dtExcelSchema;
                 dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                //string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
-                string SheetName = dtExcelSchema.Rows[1]["TABLE_NAME"].ToString();
+                string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+                //string SheetName = dtExcelSchema.Rows[1]["TABLE_NAME"].ToString();
 
                 //Leer la información de la primera página
                 cmdExcel.CommandText = "SELECT * From [" + SheetName + "]";
